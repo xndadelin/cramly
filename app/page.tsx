@@ -1,10 +1,32 @@
+"use client";
+
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, BookOpen, Brain, GraduationCap, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { getUser } from "@/lib/auth";
 
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { user } = await getUser();
+        if (user) {
+          router.replace('/dashboard');
+        }
+      } catch (error) {
+        console.error("Failed to check authentication:", error);
+      }
+    };
+    
+    checkAuth();
+  }, [router]);
+  
   return (
     <div className="flex flex-col items-center min-h-screen">
       <section className="container flex flex-col items-center justify-center py-24 text-center space-y-10">
@@ -17,7 +39,7 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
             <Button size="lg" asChild>
-              <Link href="/signin">
+              <Link href="/auth">
                 Get started <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -96,7 +118,7 @@ export default function Home() {
           </CardHeader>
           <CardFooter className="flex justify-center">
             <Button size="lg" asChild>
-              <Link href="/signup">
+              <Link href="/auth">
                 Start for free <GraduationCap className="ml-2 h-4 w-4" />
               </Link>
             </Button>
