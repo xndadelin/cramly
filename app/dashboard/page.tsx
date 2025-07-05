@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { signOut } from "@/lib/auth";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function Dashboard() {
   const { user, loading } = useCurrentUser();
@@ -33,7 +34,7 @@ export default function Dashboard() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Dashboard</h1>
         <Button onClick={handleSignOut} variant="outline">Sign out</Button>
-      </div>
+      </div>  
       
       <div className="bg-card rounded-lg shadow p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Welcome, {user.user_metadata?.full_name || user.email || "User"}!</h2>
@@ -51,21 +52,27 @@ export default function Dashboard() {
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-card rounded-lg shadow p-6">
-          <h3 className="text-lg font-medium mb-2">Your studies</h3>
-          <p className="text-muted-foreground">Track your progress and manage your study materials.</p>
-          <Button className="mt-4" variant="outline">View studies</Button>
+          <h3 className="text-lg font-medium mb-2">Notes</h3>
+          <p className="text-muted-foreground">Create and manage your notes.</p>
+          <Link href="/studies" className="mt-4 inline-block">
+            <Button variant="outline">View notes</Button>
+          </Link>
         </div>
         
         <div className="bg-card rounded-lg shadow p-6">
           <h3 className="text-lg font-medium mb-2">Flashcards</h3>
           <p className="text-muted-foreground">Review and create flashcard decks for effective learning.</p>
-          <Button className="mt-4" variant="outline">Access flashcards</Button>
+          <Link href="/flashcards" className="mt-4 inline-block">
+            <Button variant="outline">Access flashcards</Button>
+          </Link>
         </div>
         
         <div className="bg-card rounded-lg shadow p-6">
           <h3 className="text-lg font-medium mb-2">AI tutor</h3>
           <p className="text-muted-foreground">Get personalized help from our AI tutor.</p>
-          <Button className="mt-4" variant="outline">Start learning</Button>
+          <Link href="/tutor" className="mt-4 inline-block">
+            <Button variant="outline">Start learning</Button>
+          </Link>
         </div>
       </div>
     </div>
