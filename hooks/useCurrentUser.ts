@@ -16,7 +16,15 @@ export function useCurrentUser(redirectIfAuthenticated = false, redirectPath = '
         setLoading(true);
         const { user, error } = await getUser();
         
-        if (user) {
+        if (error) {
+          console.error('Authentication error:', error);
+          setUser(null);
+          
+          if (!redirectIfAuthenticated) {
+            router.replace('/auth');
+            return;
+          }
+        } else if (user) {
           setUser(user);
           
           if (redirectIfAuthenticated) {
@@ -26,13 +34,18 @@ export function useCurrentUser(redirectIfAuthenticated = false, redirectPath = '
         } else {
           setUser(null);
           if (!redirectIfAuthenticated) {
-            router.replace('/signin');
+            router.replace('/auth');
             return;
           }
         }
       } catch (error) {
         console.error('Error fetching user:', error);
         setUser(null);
+        
+        if (!redirectIfAuthenticated) {
+          router.replace('/auth');
+          return;
+        }
       } finally {
         setLoading(false);
       }

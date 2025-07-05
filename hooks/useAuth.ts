@@ -13,10 +13,18 @@ export const useAuth = (redirectTo: string = '/dashboard', redirectIfAuthenticat
     const checkUser = async () => {
       setLoading(true);
       try {
+        if (typeof window !== 'undefined' && window.location.hash && window.location.hash.includes('access_token')) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        
         const { user: currentUser, error } = await getUser();
         
         if (error) {
-          console.error('Error checking authentication:', error);
+          console.error('Error checking authentication:', error); 
+          
+          setUser(null);
+          setLoading(false);
+          return;
         }
         
         setUser(currentUser || null);
@@ -25,11 +33,12 @@ export const useAuth = (redirectTo: string = '/dashboard', redirectIfAuthenticat
           router.replace(redirectTo);
           return;
         } else if (!redirectIfAuthenticated && !currentUser) {
-          router.replace('/signin');
+          router.replace('/auth');
           return;
         }
       } catch (error) {
         console.error('Authentication check error:', error);
+        setUser(null);
       }
       
       setLoading(false);

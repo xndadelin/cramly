@@ -15,7 +15,12 @@ export default function Home() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { user } = await getUser();
+        const { user, error } = await getUser();
+        if (error) {
+          console.error("Auth error:", error);
+          return;
+        }
+        
         if (user) {
           router.replace('/dashboard');
         }
@@ -51,7 +56,7 @@ export default function Home() {
         
         <div className="relative w-full max-w-3xl aspect-video rounded-xl overflow-hidden border shadow-xl">
           <Image
-            src="/study-dashboard.png"
+            src="/app-preview.svg"
             alt="cramly preview"
             fill
             className="object-cover"

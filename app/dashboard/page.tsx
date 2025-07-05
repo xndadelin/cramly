@@ -6,14 +6,27 @@ import { Loader2 } from "lucide-react";
 import { signOut } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function Dashboard() {
   const { user, loading } = useCurrentUser();
   const router = useRouter();
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleSignOut = async () => {
-    await signOut();
-    router.push("/");
+    try {
+      setIsSigningOut(true);
+      const { error } = await signOut();
+      if (error) {
+        console.error("Sign out error:", error);
+      }
+      router.push("/");
+    } catch (error) {
+      console.error("Sign out exception:", error);
+      router.push("/");
+    } finally {
+      setIsSigningOut(false);
+    }
   };
 
   if (loading) {
@@ -33,7 +46,20 @@ export default function Dashboard() {
     <div className="container mx-auto py-10">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Dashboard</h1>
-        <Button onClick={handleSignOut} variant="outline">Sign out</Button>
+        <Button 
+          onClick={handleSignOut} 
+          variant="outline" 
+          disabled={isSigningOut}
+        >
+          {isSigningOut ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Signing out...
+            </>
+          ) : (
+            'Sign out'
+          )}
+        </Button>
       </div>  
       
       <div className="bg-card rounded-lg shadow p-6 mb-6">

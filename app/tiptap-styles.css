@@ -1,0 +1,128 @@
+.tiptap-editor .ProseMirror {
+  min-height: 400px;
+  padding: 0.5rem;
+  background: transparent;
+}
+
+.tiptap-editor .ProseMirror:focus {
+  outline: none;
+}
+
+.tiptap-editor .ProseMirror p {
+  margin-bottom: 1em;
+}
+
+.tiptap-editor .ProseMirror h1,
+.tiptap-editor .ProseMirror h2,
+.tiptap-editor .ProseMirror h3 {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+.tiptap-editor .ProseMirror blockquote {
+  border-left: 2px solid var(--muted-foreground);
+  padding-left: 1em;
+  color: var(--muted-foreground);
+  font-style: italic;
+  background: transparent;
+}
+
+.tiptap-editor .ProseMirror pre {
+  background: transparent;
+  border: 1px dashed var(--muted-foreground);
+  border-radius: 0.25rem;
+  padding: 0.75em 1em;
+  overflow-x: auto;
+}
+
+.tiptap-editor .ProseMirror a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.tiptap-editor .ProseMirror ul:not([data-type="taskList"]),
+.tiptap-editor .ProseMirror ol {
+  padding-left: 1.5em;
+}
+
+.tiptap-editor .ProseMirror ul:not([data-type="taskList"]) li,
+.tiptap-editor .ProseMirror ol li {
+  margin-bottom: 0.5em;
+}
+
+.tiptap-editor [style*="color:"] {
+  color: var(--tw-text-opacity) !important;
+}
+
+.tiptap-editor mark {
+  border-radius: 0.125rem;
+  padding: 0.125rem;
+  transition: background-color 0.2s;
+  opacity: 0.6;
+}
+
+.dark .tiptap-editor .ProseMirror {
+  color: var(--foreground);
+}
+
+.dark .tiptap-editor .is-empty::before {
+  color: var(--muted-foreground);
+}
+
+.tiptap-editor .ProseMirror ul[data-type="taskList"] {
+  list-style: none;
+  padding: 0;
+}
+
+.tiptap-editor .ProseMirror ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 0.5em;
+}
+
+.tiptap-editor .ProseMirror ul[data-type="taskList"] li > label {
+  flex: 0 0 auto;
+  margin-right: 0.5em;
+  user-select: none;
+}
+
+.tiptap-editor .ProseMirror ul[data-type="taskList"] li > div {
+  flex: 1 1 auto;
+}
+
+.tiptap-editor .ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  margin: 0.5em 0;
+}
+
+.tiptap-editor .ProseMirror p.has-text-align-center {
+  text-align: center;
+}
+
+.tiptap-editor .ProseMirror p.has-text-align-right {
+  text-align: right;
+}
+
+.tiptap-editor .ProseMirror p.has-text-align-justify {
+  text-align: justify;
+}
+
+.tiptap-editor .ProseMirror h1.has-text-align-center,
+.tiptap-editor .ProseMirror h2.has-text-align-center,
+.tiptap-editor .ProseMirror h3.has-text-align-center {
+  text-align: center;
+}
+
+.tiptap-editor .ProseMirror h1.has-text-align-right,
+.tiptap-editor .ProseMirror h2.has-text-align-right,
+.tiptap-editor .ProseMirror h3.has-text-align-right {
+  text-align: right;
+}
+
+.tiptap-editor .ProseMirror h1.has-text-align-justify,
+.tiptap-editor .ProseMirror h2.has-text-align-justify,
+.tiptap-editor .ProseMirror h3.has-text-align-justify {
+  text-align: justify;
+}

@@ -1,75 +1,15 @@
 'use client';
-import { Button } from "@/components/ui/button";
-import { authSlack, authGithub, authDiscord } from "@/lib/auth";
-import { Github, MessageSquare } from "lucide-react";
-import Image from "next/image";
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Loading } from '@/components/ui/loading';
 
 export default function Signin() {
-    const handleSlackSignIn = async () => {
-        await authSlack();
-    };
-
-    const handleGithubSignIn = async () => {
-        await authGithub();
-    };
-
-    const handleDiscordSignIn = async () => {
-        await authDiscord();
-    };
-
-    return (
-        <div className="flex flex-col items-center justify-center min-h-screen">
-            <section className="container flex flex-col items-center justify-center py-24 text-center space-y-10">
-                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-                    Sign in to Cramly
-                </h1>
-                <p className="mx-auto max-w-[700px] text-lg md:text-xl">
-                    Choose one of the authentication methods to continue.
-                </p>
-
-                <div className="flex flex-col w-full max-w-sm gap-4 mt-4">
-                    <Button 
-                        variant="outline" 
-                        onClick={handleSlackSignIn}
-                        className="flex items-center justify-center gap-3 h-12 text-white bg-[#4A154B] hover:bg-[#3e1040] border-0"
-                    >
-                        <svg 
-                            viewBox="0 0 24 24" 
-                            width="22" 
-                            height="22" 
-                            fill="currentColor"
-                        >
-                            <path d="M5.042,15.165 C5.042,16.486 3.973,17.555 2.652,17.555 C1.331,17.555 0.262,16.486 0.262,15.165 C0.262,13.844 1.331,12.775 2.652,12.775 L5.042,12.775 L5.042,15.165 Z M6.238,15.165 C6.238,13.844 7.307,12.775 8.628,12.775 C9.949,12.775 11.018,13.844 11.018,15.165 L11.018,21.142 C11.018,22.463 9.949,23.532 8.628,23.532 C7.307,23.532 6.238,22.463 6.238,21.142 L6.238,15.165 Z M8.628,5.042 C7.307,5.042 6.238,3.973 6.238,2.652 C6.238,1.331 7.307,0.262 8.628,0.262 C9.949,0.262 11.018,1.331 11.018,2.652 L11.018,5.042 L8.628,5.042 Z M8.628,6.238 C9.949,6.238 11.018,7.307 11.018,8.628 C11.018,9.949 9.949,11.018 8.628,11.018 L2.652,11.018 C1.331,11.018 0.262,9.949 0.262,8.628 C0.262,7.307 1.331,6.238 2.652,6.238 L8.628,6.238 Z M18.752,8.628 C18.752,7.307 19.821,6.238 21.142,6.238 C22.463,6.238 23.532,7.307 23.532,8.628 C23.532,9.949 22.463,11.018 21.142,11.018 L18.752,11.018 L18.752,8.628 Z M17.555,8.628 C17.555,9.949 16.486,11.018 15.165,11.018 C13.844,11.018 12.775,9.949 12.775,8.628 L12.775,2.652 C12.775,1.331 13.844,0.262 15.165,0.262 C16.486,0.262 17.555,1.331 17.555,2.652 L17.555,8.628 Z M15.165,18.752 C16.486,18.752 17.555,19.821 17.555,21.142 C17.555,22.463 16.486,23.532 15.165,23.532 C13.844,23.532 12.775,22.463 12.775,21.142 L12.775,18.752 L15.165,18.752 Z M15.165,17.555 C13.844,17.555 12.775,16.486 12.775,15.165 C12.775,13.844 13.844,12.775 15.165,12.775 L21.142,12.775 C22.463,12.775 23.532,13.844 23.532,15.165 C23.532,16.486 22.463,17.555 21.142,17.555 L15.165,17.555 Z" />
-                        </svg>
-                        Continue with Slack
-                    </Button>
-                    
-                    <Button 
-                        variant="outline" 
-                        onClick={handleGithubSignIn}
-                        className="flex items-center justify-center gap-3 h-12 text-white bg-[#24292e] hover:bg-[#1a1e22] border-0"
-                    >
-                        <Github className="w-5 h-5" />
-                        Continue with GitHub
-                    </Button>
-                    
-                    <Button 
-                        variant="outline" 
-                        onClick={handleDiscordSignIn}
-                        className="flex items-center justify-center gap-3 h-12 text-white bg-[#5865F2] hover:bg-[#4752c4] border-0"
-                    >
-                        <svg 
-                            width="22" 
-                            height="22" 
-                            viewBox="0 0 24 24" 
-                            fill="currentColor"
-                        >
-                            <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286z" />
-                        </svg>
-                        Continue with Discord
-                    </Button>
-                </div>
-            </section>
-        </div>
-    );
+    const router = useRouter();
+    
+    useEffect(() => {
+        router.replace('/auth');
+    }, [router]);
+    
+    return <Loading />;
 }
