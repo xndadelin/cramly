@@ -17,21 +17,15 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-interface NotePageProps {
-  params: {
-    id: string;
-  }
-}
-
-export default function NotePage({ params }: NotePageProps) {
+export default function NotePage() {
   const [currentNote, setCurrentNote] = useState<Note | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshSidebar, setRefreshSidebar] = useState(0);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
-  const routeParams = useParams();
-  const noteId = routeParams?.id as string;
+  const params = useParams();
+  const noteId = Array.isArray(params?.id) ? params.id[0] : params?.id as string;
 
   useEffect(() => {
     async function loadNote() {

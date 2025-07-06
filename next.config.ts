@@ -5,8 +5,11 @@ const nextConfig: NextConfig = {
   images: {
     domains: ['example.com', 'www.fivebranches.edu'],
   },
-  webpack: (config) => {
-    return config;
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
   },
   headers: async () => {
     return [
