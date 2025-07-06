@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -29,6 +29,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { updateNote, Note } from '@/lib/notes';
+import { AIButton } from '@/components/ai-button';
 
 interface RichTextEditorProps {
   note?: Note;
@@ -45,6 +46,18 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
   const [originalContent, setOriginalContent] = useState<string>(note?.content || '');
   const [originalTitle, setOriginalTitle] = useState<string>(note?.title || 'Untitled Note');
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const handleAIMarkdown = (markdown: string) => {
+    if (!editor) return;
+
+    editor.chain().focus().insertContent(markdown, {
+      parseOptions: {
+        preserveWhitespace: true,
+      }
+    }).run();
+
+    updateUnsavedStatus(true);
+  };
 
   const editor = useEditor({
     extensions: [
@@ -64,7 +77,7 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
         multicolor: true,
       }),
     ],
-    content: note?.content || '<h1>Hello, world!</h1><p>Start typing to create your notes.</p>',
+    content: note?.content || '<p>Start typing to create your notes.</p>',
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
       if (updateTimeoutRef.current) {
@@ -78,21 +91,21 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
     }
   });
   
-  const checkForChanges = React.useCallback(() => {
+  const checkForChanges = useCallback(() => {
     if (!editor || !currentNoteId) return false;
-    
+
     const currentContent = editor.getHTML();
     const currentTitleValue = noteTitle;
-    
+
     const contentChanged = currentContent !== originalContent;
     const titleChanged = currentTitleValue !== originalTitle;
-    
+
     return contentChanged || titleChanged;
   }, [editor, currentNoteId, noteTitle, originalContent, originalTitle]);
 
-  const updateUnsavedStatus = React.useCallback((forceValue?: boolean) => {
+  const updateUnsavedStatus = useCallback((forceValue?: boolean) => {
     const hasChanges = forceValue !== undefined ? forceValue : checkForChanges();
-    
+
     if (isUnsaved !== hasChanges) {
       setIsUnsaved(hasChanges);
       if (onNoteChanged) {
@@ -122,7 +135,7 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
     if (!editor) return;
     
     if (!note) {
-      const defaultContent = '<h1>Hello, world!</h1><p>Start typing to create your notes.</p>';
+      const defaultContent = '<p>Start typing to create your notes.</p>';
       setCurrentNoteId(undefined);
       setNoteTitle('Untitled Note');
       setOriginalTitle('Untitled Note');
@@ -298,6 +311,7 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
           </Button>
         </div>
       </div>
+
       <div className="p-2 bg-transparent flex flex-wrap gap-1 overflow-x-auto max-w-full">
         <Button 
           variant="ghost" 
@@ -429,6 +443,7 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
       </div>
       
       <div className="p-4 bg-transparent overflow-y-auto">
+        <AIButton onMarkdownReceived={handleAIMarkdown} />
         <EditorContent 
           editor={editor} 
           className="min-h-[400px] max-h-[calc(100vh-300px)] focus:outline-none prose dark:prose-invert max-w-none tiptap-editor bg-transparent" 

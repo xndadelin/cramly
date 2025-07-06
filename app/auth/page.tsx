@@ -2,8 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { authSlack, authGithub, authDiscord } from "@/lib/auth";
-import { Github, MessageSquare, Loader2 } from "lucide-react";
-import Image from "next/image";
+import { Github, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Loading } from "@/components/ui/loading";
 import { useState } from "react";

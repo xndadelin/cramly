@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useState } from 'react';
 import { getUser } from '@/lib/auth';
 import { useRouter } from 'next/navigation';

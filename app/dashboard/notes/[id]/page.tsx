@@ -5,7 +5,6 @@ import { RichTextEditor } from "@/components/rich-text-editor";
 import { useEffect, useState, useCallback } from "react";
 import { Note, getNoteById, deleteNote } from "@/lib/notes";
 import { useRouter, useParams } from "next/navigation";
-import React from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import {
@@ -97,15 +96,6 @@ export default function NotePage() {
         refreshTrigger={refreshSidebar}
       />
       <div className="flex-1 flex flex-col p-4 overflow-hidden">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Notes</h1>
-        </div>
-        
-        {currentNote && !isLoading && (
-          <div className="flex items-center mb-4">
-            <h2 className="text-2xl font-medium flex-1">{currentNote.title}</h2>
-          </div>
-        )}
         <div className="flex-1 overflow-y-auto pr-4">
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
