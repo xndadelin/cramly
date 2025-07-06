@@ -13,7 +13,7 @@ import {
   ChevronRight,
   Loader2,
 } from "lucide-react";
-import { Note, getNotes, getFolders, createFolder } from '@/lib/notes';
+import { Note, getNotes, getFolders, createFolder, createNote } from '@/lib/notes';
 import { useToast } from '@/components/ui/use-toast';
 import {
   Dialog,
@@ -24,6 +24,48 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from '@/components/ui/input';
+
+function NewNoteButton() {
+  const [isCreating, setIsCreating] = useState(false);
+  const router = useRouter();
+  const toast = useToast();
+  
+  const handleClick = async () => {
+    if (isCreating) return;
+    
+    setIsCreating(true);
+    try {
+      const newNote = await createNote('Untitled Note', '<h1>Hello, world!</h1><p>Start typing to create your notes.</p>');
+      toast({
+        title: "Note created",
+        description: "New note has been created successfully."
+      });
+      router.push(`/dashboard/notes/${newNote.id}`);
+    } catch (error) {
+      console.error('Error creating note:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create a new note. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCreating(false);
+    }
+  };
+  
+  return (
+    <Button 
+      variant="secondary" 
+      size="sm" 
+      className="flex-1"
+      onClick={handleClick}
+      disabled={isCreating}
+    >
+      <FileText className="h-4 w-4 mr-2" />
+      {isCreating ? 'Creating...' : 'New note'}
+    </Button>
+  );
+}
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   currentNoteId?: string;
@@ -42,8 +84,6 @@ export function Sidebar({ className, currentNoteId, onNoteSelected, refreshTrigg
   const router = useRouter();
   const pathname = usePathname();
 
-  const [lastRefreshTimestamp, setLastRefreshTimestamp] = useState(Date.now());
-
   useEffect(() => {
     async function loadData() {
       setIsLoading(true);
@@ -54,7 +94,6 @@ export function Sidebar({ className, currentNoteId, onNoteSelected, refreshTrigg
         ]);
         setNotes(notesData);
         setFolders(foldersData);
-        setLastRefreshTimestamp(Date.now());
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -216,7 +255,9 @@ export function Sidebar({ className, currentNoteId, onNoteSelected, refreshTrigg
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium">Quick actions</span>
           </div>
-          <div className="flex flex-wrap gap-2">            
+          <div className="flex flex-wrap gap-2">
+            <NewNoteButton />
+            
             <Dialog open={isFolderDialogOpen} onOpenChange={setIsFolderDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm" className="flex-1">
