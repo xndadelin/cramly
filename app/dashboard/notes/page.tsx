@@ -15,20 +15,14 @@ export default function NotesPage() {
   const toast = useToast();
 
   const handleNoteSelected = async (note: Note | null) => {
-    console.log('handleNoteSelected called with note:', note);
     if (note) {
-      console.log('Navigating to existing note:', note.id);
       router.push(`/dashboard/notes/${note.id}`, { scroll: false });
     } else {
-      console.log('Creating new note');
       await handleCreateNewNote();
     }
   };
 
   const handleCreateNewNote = async () => {
-    // Show an alert to confirm the function is being called
-    alert("Creating new note from dashboard page...");
-    
     if (isCreatingNote) {
       return;
     }

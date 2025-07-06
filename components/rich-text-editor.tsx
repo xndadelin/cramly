@@ -37,11 +37,11 @@ interface RichTextEditorProps {
   note?: Note;
   onNoteSaved?: (note: Note) => void;
   onNoteChanged?: (isUnsaved: boolean) => void;
-  folderId?: string;
 }
 
-export function RichTextEditor({ note, onNoteSaved, onNoteChanged, folderId }: RichTextEditorProps) {
+export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEditorProps) {
   const [isSaving, setIsSaving] = useState(false);
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [isUnsaved, setIsUnsaved] = useState(false);
   const [noteTitle, setNoteTitle] = useState(note?.title || 'Untitled Note');
   const [currentNoteId, setCurrentNoteId] = useState<string | undefined>(note?.id);
@@ -97,11 +97,12 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged, folderId }: R
         onNoteChanged(isUnsavedValue);
       }
     }
-  }, [onNoteChanged, isUnsaved]);
+  }, [onNoteChanged]);
 
   useEffect(() => {
     if (!editor || !note) return;
     
+    // Only update if the note ID changed or we're getting a new editor instance
     if (currentNoteId !== note.id) {
       setCurrentNoteId(note.id);
       setNoteTitle(note.title);
@@ -113,7 +114,7 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged, folderId }: R
       const noteIsUnsaved = note.isUnsaved || false;
       updateUnsavedStatus(noteIsUnsaved);
     }
-  }, [note, editor, updateUnsavedStatus, currentNoteId]);
+  }, [note?.id, editor]);
   
   useEffect(() => {
     if (!editor) return;
@@ -125,6 +126,44 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged, folderId }: R
       updateUnsavedStatus(false);
     }
   }, [note, editor, updateUnsavedStatus]);
+
+  // Auto-save functionality
+  const [autoSaveInterval, setAutoSaveInterval] = useState<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    // Start auto-save interval when component mounts
+    const interval = setInterval(async () => {
+      // Only save if there are unsaved changes and we have a note ID
+      if (isUnsaved && editor && currentNoteId) {
+        setIsAutoSaving(true);
+        try {
+          const content = editor.getHTML();
+          
+          const savedNote = await updateNote(currentNoteId, {
+            title: noteTitle,
+            content
+          });
+          
+          updateUnsavedStatus(false);
+          
+          if (onNoteSaved && savedNote) {
+            onNoteSaved(savedNote);
+          }
+        } catch (error) {
+          console.error('Error during auto-save:', error);
+        } finally {
+          setIsAutoSaving(false);
+        }
+      }
+    }, 5000); // Save every 5 seconds
+    
+    setAutoSaveInterval(interval);
+    
+    // Clean up interval on component unmount
+    return () => {
+      clearInterval(interval);
+    };
+  }, [editor, currentNoteId, isUnsaved, noteTitle, updateUnsavedStatus, onNoteSaved]);
 
   const toggleBold = () => {
     editor?.chain().focus().toggleBold().run();
@@ -239,20 +278,28 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged, folderId }: R
             <div className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" title="Unsaved changes" />
           )}
         </div>
-        <Button 
-          onClick={saveNote}
-          disabled={isSaving}
-          variant="outline"
-          size="sm"
-          className="border-primary/30 text-primary hover:text-primary/80 hover:bg-primary/5 transition-all"
-        >
-          {isSaving ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
-            </>
-          ) : 'Save'}
-        </Button>
+        <div className="flex gap-2 items-center">
+          {isAutoSaving && (
+            <span className="text-xs text-muted-foreground flex items-center">
+              <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+              Auto-saving...
+            </span>
+          )}
+          <Button 
+            onClick={saveNote}
+            disabled={isSaving}
+            variant="outline"
+            size="sm"
+            className="border-primary/30 text-primary hover:text-primary/80 hover:bg-primary/5 transition-all"
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : 'Save'}
+          </Button>
+        </div>
       </div>
       <div className="p-2 bg-transparent flex flex-wrap gap-1 overflow-x-auto max-w-full">
         <Button 

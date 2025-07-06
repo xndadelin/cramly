@@ -4,7 +4,6 @@ export interface Note {
   id: string;
   title: string;
   content: string;
-  folder_id?: string;
   created_at: string;
   updated_at: string;
   isUnsaved?: boolean;
@@ -43,13 +42,12 @@ export async function getNoteById(noteId: string) {
   return data as Note;
 }
 
-export async function createNote(title: string, content: string, folderId?: string) {
+export async function createNote(title: string, content: string) {
   const supabase = await createClient();
   
   const newNote = {
     title,
     content,
-    folder_id: folderId,
   };
   
   const { data, error } = await supabase
@@ -98,34 +96,4 @@ export async function deleteNote(noteId: string) {
   return true;
 }
 
-export async function getFolders() {
-  const supabase = await createClient();
-  
-  const { data, error } = await supabase
-    .from('folders')
-    .select('*')
-    .order('name');
-  
-  if (error) {
-    console.error('Error fetching folders:', error);
-    throw error;
-  }
-  
-  return data;
-}
 
-export async function createFolder(name: string) {
-  const supabase = await createClient();
-  
-  const { data, error } = await supabase
-    .from('folders')
-    .insert([{ name }])
-    .select();
-  
-  if (error) {
-    console.error('Error creating folder:', error);
-    throw error;
-  }
-  
-  return data[0];
-}

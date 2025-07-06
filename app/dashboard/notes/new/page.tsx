@@ -14,14 +14,11 @@ export default function NewNotePage() {
   useEffect(() => {
     async function createNewNote() {
       try {
-        console.log('Creating new note from /new page');
         const newNote = await createNote(
           'Untitled Note', 
           '<h1>Hello, world!</h1><p>Start typing to create your notes.</p>'
         );
-        console.log('Note created, redirecting to:', newNote.id);
         
-        // Add a small delay to ensure the redirect happens
         setTimeout(() => {
           router.push(`/dashboard/notes/${newNote.id}`);
         }, 100);

@@ -29,26 +29,24 @@ export default function NotePage({ params }: NotePageProps) {
         return;
       }
 
-      if (currentNote && currentNote.id === noteId) {
-        setIsLoading(false);
-        return;
-      }
-
-      setIsLoading(true);
-      try {
-        const note = await getNoteById(noteId);
-        setCurrentNote(note);
-      } catch (error) {
-        console.error('Error loading note:', error);
-        setCurrentNote(null);
-        router.push('/dashboard/notes');
-      } finally {
-        setIsLoading(false);
+      // Only load the note if we don't have it or if the ID changed
+      if (!currentNote || currentNote.id !== noteId) {
+        setIsLoading(true);
+        try {
+          const note = await getNoteById(noteId);
+          setCurrentNote(note);
+        } catch (error) {
+          console.error('Error loading note:', error);
+          setCurrentNote(null);
+          router.push('/dashboard/notes');
+        } finally {
+          setIsLoading(false);
+        }
       }
     }
 
     loadNote();
-  }, [noteId, currentNote?.id, router]);
+  }, [noteId, router]);
 
   const handleNoteSelected = (note: Note | null) => {
     if (note && note.id !== noteId) {
@@ -58,17 +56,20 @@ export default function NotePage({ params }: NotePageProps) {
 
   const handleNoteChanged = useCallback((isUnsaved: boolean) => {
     if (currentNote) {
-      setCurrentNote(prev => {
-        if (!prev) return null;
-        return { ...prev, isUnsaved };
-      });
+      // Only update if the isUnsaved state actually changed
+      if (currentNote.isUnsaved !== isUnsaved) {
+        setCurrentNote(prev => {
+          if (!prev) return null;
+          return { ...prev, isUnsaved };
+        });
+      }
     }
-  }, [currentNote]);
+  }, []);
 
-  const handleNoteSaved = (note: Note) => {
+  const handleNoteSaved = useCallback((note: Note) => {
     setCurrentNote(note);
     setRefreshSidebar(prev => prev + 1);
-  };
+  }, []);
 
   return (
     <div className="flex min-h-screen max-h-screen overflow-hidden">
