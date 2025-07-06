@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -20,17 +21,40 @@ import {
   Redo,
   Link as LinkIcon,
   Highlighter,
+  Loader2,
 } from 'lucide-react';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { createNote, updateNote, Note } from '@/lib/notes';
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from 'next/navigation';
 
-export function RichTextEditor() {
+interface RichTextEditorProps {
+  note?: Note;
+  onNoteSaved?: (note: Note) => void;
+  onNoteChanged?: (isUnsaved: boolean) => void;
+  folderId?: string;
+}
+
+export function RichTextEditor({ note, onNoteSaved, onNoteChanged, folderId }: RichTextEditorProps) {
   const [isSaving, setIsSaving] = useState(false);
-  const [noteTitle, setNoteTitle] = useState('Untitled Note');
+  const [isUnsaved, setIsUnsaved] = useState(false);
+  const [noteTitle, setNoteTitle] = useState(note?.title || 'Untitled Note');
+  const [currentNoteId, setCurrentNoteId] = useState<string | undefined>(note?.id);
+  const toast = useToast();
+  const router = useRouter();
+  const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const notifySuccess = React.useCallback((title: string, description: string) => {
+    toast({
+      title,
+      description,
+    });
+  }, [toast]);
 
   const editor = useEditor({
     extensions: [
@@ -50,8 +74,57 @@ export function RichTextEditor() {
         multicolor: true,
       }),
     ],
-    content: '<h1>Hello, world!</h1><p>Start typing to create your notes.</p>',
+    content: note?.content || '<h1>Hello, world!</h1><p>Start typing to create your notes.</p>',
+    immediatelyRender: false,
+    onUpdate: ({ editor }) => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+
+      updateTimeoutRef.current = setTimeout(() => {
+        if (!isUnsaved) {
+          updateUnsavedStatus(true);
+        }
+        updateTimeoutRef.current = null;
+      }, 300);
+    }
   });
+  
+  const updateUnsavedStatus = React.useCallback((isUnsavedValue: boolean) => {
+    if (isUnsaved !== isUnsavedValue) {
+      setIsUnsaved(isUnsavedValue);
+      if (onNoteChanged) {
+        onNoteChanged(isUnsavedValue);
+      }
+    }
+  }, [onNoteChanged, isUnsaved]);
+
+  useEffect(() => {
+    if (!editor || !note) return;
+    
+    if (currentNoteId !== note.id) {
+      setCurrentNoteId(note.id);
+      setNoteTitle(note.title);
+      
+      if (editor.getHTML() !== note.content) {
+        editor.commands.setContent(note.content || '');
+      }
+      
+      const noteIsUnsaved = note.isUnsaved || false;
+      updateUnsavedStatus(noteIsUnsaved);
+    }
+  }, [note, editor, updateUnsavedStatus, currentNoteId]);
+  
+  useEffect(() => {
+    if (!editor) return;
+    
+    if (!note) {
+      setCurrentNoteId(undefined);
+      setNoteTitle('Untitled Note');
+      editor.commands.setContent('<h1>Hello, world!</h1><p>Start typing to create your notes.</p>');
+      updateUnsavedStatus(false);
+    }
+  }, [note, editor, updateUnsavedStatus]);
 
   const toggleBold = () => {
     editor?.chain().focus().toggleBold().run();
@@ -93,8 +166,6 @@ export function RichTextEditor() {
     editor?.chain().focus().redo().run();
   };
 
-
-
   const setHighlight = (color: string) => {
     try {
       if (color) {
@@ -116,14 +187,34 @@ export function RichTextEditor() {
     }
   };
 
-  const saveNote = () => {
+  const saveNote = async () => {
+    if (!editor || !currentNoteId) return;
+    
     setIsSaving(true);
-    setTimeout(() => {
-      const content = editor?.getHTML();
-      console.log('Saving note:', { title: noteTitle, content });
+    try {
+      const content = editor.getHTML();
+      
+      const savedNote = await updateNote(currentNoteId, {
+        title: noteTitle,
+        content
+      });
+      notifySuccess("Note updated", `"${noteTitle}" has been updated successfully.`);
+      
+      updateUnsavedStatus(false);
+      
+      if (onNoteSaved && savedNote) {
+        onNoteSaved(savedNote);
+      }
+    } catch (error) {
+      console.error('Error saving note:', error);
+      toast({
+        title: "Error saving note",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+    } finally {
       setIsSaving(false);
-      alert(`Note "${noteTitle}" saved!`);
-    }, 800);
+    }
   };
 
   if (!editor) {
@@ -133,13 +224,21 @@ export function RichTextEditor() {
   return (
     <div className="flex flex-col w-full bg-transparent">
       <div className="p-4 bg-transparent flex flex-wrap items-center justify-between gap-2">
-        <input
-          type="text"
-          value={noteTitle}
-          onChange={(e) => setNoteTitle(e.target.value)}
-          placeholder="Enter note title..."
-          className="flex-1 min-w-[200px] text-xl font-bold bg-transparent border-none focus:outline-none focus:ring-0 p-0"
-        />
+        <div className="flex items-center gap-2 flex-1">
+          <input
+            type="text"
+            value={noteTitle}
+            onChange={(e) => {
+              setNoteTitle(e.target.value);
+              updateUnsavedStatus(true);
+            }}
+            placeholder="Enter note title..."
+            className="flex-1 min-w-[200px] text-xl font-bold bg-transparent border-none focus:outline-none focus:ring-0 p-0"
+          />
+          {isUnsaved && (
+            <div className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" title="Unsaved changes" />
+          )}
+        </div>
         <Button 
           onClick={saveNote}
           disabled={isSaving}
@@ -147,7 +246,12 @@ export function RichTextEditor() {
           size="sm"
           className="border-primary/30 text-primary hover:text-primary/80 hover:bg-primary/5 transition-all"
         >
-          {isSaving ? 'Saving...' : 'Save'}
+          {isSaving ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Saving...
+            </>
+          ) : 'Save'}
         </Button>
       </div>
       <div className="p-2 bg-transparent flex flex-wrap gap-1 overflow-x-auto max-w-full">

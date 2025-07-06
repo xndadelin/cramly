@@ -80,7 +80,7 @@ export default function Dashboard() {
         <div className="bg-card rounded-lg shadow p-6">
           <h3 className="text-lg font-medium mb-2">Notes</h3>
           <p className="text-muted-foreground">Create and manage your notes.</p>
-          <Link href="/studies" className="mt-4 inline-block">
+          <Link href="/dashboard/notes" className="mt-4 inline-block">
             <Button variant="outline">View notes</Button>
           </Link>
         </div>
