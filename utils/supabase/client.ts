@@ -7,7 +7,6 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 export const createClient = () => {
   if (!isClient) {
-    console.warn("Attempted to create Supabase client on the server side");
     return {
       auth: {
         getUser: async () => ({ data: { user: null }, error: new Error("Server side rendering") }),
@@ -18,7 +17,6 @@ export const createClient = () => {
   }
   
   if (!supabaseUrl || !supabaseKey) {
-    console.error("Supabase environment variables are missing!");
     return {
       auth: {
         getUser: async () => ({ data: { user: null }, error: new Error("Missing configuration") }),
@@ -36,13 +34,11 @@ export const createClient = () => {
         flowType: 'pkce',
         persistSession: true,
         detectSessionInUrl: true,
-        autoRefreshToken: true,
-        debug: true
+        autoRefreshToken: true
       },
       global: {
         fetch: (...args) => {
           return fetch(...args).catch(error => {
-            console.error('Supabase fetch error:', error);
             throw error;
           });
         }

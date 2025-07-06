@@ -1,10 +1,9 @@
 'use client';
 
 import { Sidebar } from "@/components/ui/sidebar";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Note, createNote } from "@/lib/notes";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
 
@@ -12,11 +11,12 @@ export default function NotesPage() {
   const [refreshSidebar, setRefreshSidebar] = useState(0);
   const [isCreatingNote, setIsCreatingNote] = useState(false);
   const router = useRouter();
-  const toast = useToast();
 
   const handleNoteSelected = async (note: Note | null) => {
     if (note) {
-      router.push(`/dashboard/notes/${note.id}`, { scroll: false });
+      setTimeout(() => {
+        router.push(`/dashboard/notes/${note.id}`, { scroll: false });
+      }, 50);
     } else {
       await handleCreateNewNote();
     }
@@ -31,20 +31,9 @@ export default function NotesPage() {
     try {
       const newNote = await createNote('Untitled Note', '<h1>Hello, world!</h1><p>Start typing to create your notes.</p>');
       
-      toast({
-        title: "Note created",
-        description: "New note has been created successfully."
-      });
-      
       setRefreshSidebar(prev => prev + 1);
       router.push(`/dashboard/notes/${newNote.id}`, { scroll: false });
     } catch (error) {
-      console.error('Error creating new note:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create a new note. Please try again.",
-        variant: "destructive"
-      });
     } finally {
       setIsCreatingNote(false);
     }

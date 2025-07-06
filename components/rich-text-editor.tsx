@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -28,9 +28,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useState, useEffect, useRef } from 'react';
 import { updateNote, Note } from '@/lib/notes';
-import { useToast } from "@/components/ui/use-toast";
 
 interface RichTextEditorProps {
   note?: Note;
@@ -46,15 +44,7 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
   const [currentNoteId, setCurrentNoteId] = useState<string | undefined>(note?.id);
   const [originalContent, setOriginalContent] = useState<string>(note?.content || '');
   const [originalTitle, setOriginalTitle] = useState<string>(note?.title || 'Untitled Note');
-  const toast = useToast();
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
-  const notifySuccess = React.useCallback((title: string, description: string) => {
-    toast({
-      title,
-      description,
-    });
-  }, [toast]);
 
   const editor = useEditor({
     extensions: [
@@ -162,7 +152,6 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
             onNoteSaved(savedNote);
           }
         } catch (error) {
-          console.error('Error during auto-save:', error);
         } finally {
           setIsAutoSaving(false);
         }
@@ -222,7 +211,6 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
         editor?.chain().focus().toggleHighlight().run();
       }
     } catch (error) {
-      console.error('Error applying highlight:', error);
     }
   };
   
@@ -246,7 +234,6 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
         title: noteTitle,
         content
       });
-      notifySuccess("Note updated", `"${noteTitle}" has been updated successfully.`);
       
       setOriginalContent(content);
       setOriginalTitle(noteTitle);
@@ -256,12 +243,6 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
         onNoteSaved(savedNote);
       }
     } catch (error) {
-      console.error('Error saving note:', error);
-      toast({
-        title: "Error saving note",
-        description: "Please try again later",
-        variant: "destructive",
-      });
     } finally {
       setIsSaving(false);
     }

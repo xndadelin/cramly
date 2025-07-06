@@ -18,7 +18,6 @@ export async function getNotes() {
     .order('updated_at', { ascending: false });
   
   if (error) {
-    console.error('Error fetching notes:', error);
     throw error;
   }
   
@@ -34,8 +33,9 @@ export async function getNoteById(noteId: string) {
     .eq('id', noteId)
     .single();
   
-  if (error) {
-    console.error(`Error fetching note with id ${noteId}:`, error);
+  if (error && error.code === 'PGRST116') {
+    throw new Error(`Note with ID ${noteId} not found`);
+  } else if (error) {
     throw error;
   }
   
@@ -56,7 +56,6 @@ export async function createNote(title: string, content: string) {
     .select();
   
   if (error) {
-    console.error('Error creating note:', error);
     throw error;
   }
   
@@ -73,7 +72,6 @@ export async function updateNote(noteId: string, updates: Partial<Note>) {
     .select();
   
   if (error) {
-    console.error(`Error updating note with id ${noteId}:`, error);
     throw error;
   }
   
@@ -89,11 +87,9 @@ export async function deleteNote(noteId: string) {
     .eq('id', noteId);
   
   if (error) {
-    console.error(`Error deleting note with id ${noteId}:`, error);
     throw error;
   }
   
   return true;
 }
-
 
