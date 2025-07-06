@@ -22,12 +22,12 @@ function NewNoteButton() {
     
     setIsCreating(true);
     try {
-      const newNote = await createNote('Untitled Note', '<h1>Hello, world!</h1><p>Start typing to create your notes.</p>');
+      const newNote = await createNote('Untitled Note', '<p>Start typing to create your notes.</p>');
       router.push(`/dashboard/notes/${newNote.id}`);
     } catch (error) {
     } finally {
       setIsCreating(false);
-    }
+    };
   };
   
   return (
@@ -179,9 +179,6 @@ export function Sidebar({ className, currentNoteId, onNoteSelected, onDeleteNote
           )}
         </nav>
         <div className="border-t p-4 flex-shrink-0">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium">Quick actions</span>
-          </div>
           <div className="flex flex-wrap">
             <NewNoteButton />
           </div>

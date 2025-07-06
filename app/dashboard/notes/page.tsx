@@ -29,14 +29,14 @@ export default function NotesPage() {
     
     setIsCreatingNote(true);
     try {
-      const newNote = await createNote('Untitled Note', '<h1>Hello, world!</h1><p>Start typing to create your notes.</p>');
+      const newNote = await createNote('Untitled Note', '<p>Start typing to create your notes.</p>');
       
       setRefreshSidebar(prev => prev + 1);
       router.push(`/dashboard/notes/${newNote.id}`, { scroll: false });
     } catch (error) {
     } finally {
       setIsCreatingNote(false);
-    }
+    };
   };
 
   const handleNoteSaved = () => {

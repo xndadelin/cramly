@@ -1,22 +1,17 @@
 import { Note } from './notes';
 
 export function exportAsMarkdown(note: Note): string {
-  // Simple HTML to Markdown conversion
   let content = note.content;
   
-  // Replace headings
   content = content.replace(/<h1>(.*?)<\/h1>/gi, '# $1\n\n');
   content = content.replace(/<h2>(.*?)<\/h2>/gi, '## $1\n\n');
   content = content.replace(/<h3>(.*?)<\/h3>/gi, '### $1\n\n');
   
-  // Replace paragraphs
   content = content.replace(/<p>(.*?)<\/p>/gi, '$1\n\n');
   
-  // Replace bold and italic
   content = content.replace(/<strong>(.*?)<\/strong>/gi, '**$1**');
   content = content.replace(/<em>(.*?)<\/em>/gi, '*$1*');
   
-  // Replace lists
   content = content.replace(/<ul>(.*?)<\/ul>/gi, (match, p1) => {
     return p1.replace(/<li>(.*?)<\/li>/gi, '- $1\n');
   });
@@ -28,26 +23,20 @@ export function exportAsMarkdown(note: Note): string {
     });
   });
   
-  // Replace links
   content = content.replace(/<a href="(.*?)">(.*?)<\/a>/gi, '[$2]($1)');
   
-  // Replace blockquotes
   content = content.replace(/<blockquote>(.*?)<\/blockquote>/gi, '> $1\n\n');
   
-  // Replace code blocks
   content = content.replace(/<pre><code>(.*?)<\/code><\/pre>/gi, '```\n$1\n```\n\n');
   
-  // Remove remaining HTML tags
   content = content.replace(/<[^>]*>/g, '');
   
-  // Add title at the beginning
   const markdown = `# ${note.title}\n\n${content}`;
   
   return markdown;
 }
 
 export function exportAsHTML(note: Note): string {
-  // Create a styled HTML document
   const html = `<!DOCTYPE html>
 <html>
 <head>
@@ -94,9 +83,7 @@ export function exportAsHTML(note: Note): string {
   return html;
 }
 
-// Function to download content as a file
 export function downloadFile(content: string, fileName: string, contentType: string): void {
-  // For browser environments only
   if (typeof window !== 'undefined') {
     const blob = new Blob([content], { type: contentType });
     const url = URL.createObjectURL(blob);

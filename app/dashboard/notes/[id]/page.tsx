@@ -88,19 +88,19 @@ export default function NotePage() {
   };
 
   return (
-    <div className="flex min-h-screen max-h-screen overflow-hidden">
+    <div className="flex h-full min-h-[calc(100vh-80px)] w-full overflow-hidden">
       <Sidebar 
         currentNoteId={noteId} 
         onNoteSelected={handleNoteSelected}
         onDeleteNote={() => setIsDeleteDialogOpen(true)}
         refreshTrigger={refreshSidebar}
       />
-      <div className="flex-1 flex flex-col p-4 overflow-hidden">
-        <div className="flex-1 overflow-y-auto pr-4">
+      <div className="flex-1 flex flex-col p-3 overflow-hidden">
+        <div className="flex-1 overflow-y-auto">
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
-              <Loader2 className="h-6 w-6 animate-spin mr-2" />
-              <p className="text-muted-foreground">Loading note...</p>
+              <Loader2 className="h-4 w-4 animate-spin mr-1" />
+              <p className="text-sm text-muted-foreground">Loading...</p>
             </div>
           ) : (
             <RichTextEditor 
@@ -113,25 +113,26 @@ export default function NotePage() {
       </div>
       
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Delete Note</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this note? This action cannot be undone.
+            <DialogTitle className="text-base">Delete Note</DialogTitle>
+            <DialogDescription className="text-sm">
+              This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+          <DialogFooter className="gap-2 sm:justify-end">
+            <Button variant="outline" size="sm" onClick={() => setIsDeleteDialogOpen(false)}>
               Cancel
             </Button>
             <Button 
               variant="destructive"
+              size="sm"
               onClick={handleDeleteNote}
               disabled={isDeleting}
             >
               {isDeleting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
                   Deleting...
                 </>
               ) : (

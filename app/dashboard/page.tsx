@@ -88,7 +88,7 @@ export default function Dashboard() {
         <div className="bg-card rounded-lg shadow p-6">
           <h3 className="text-lg font-medium mb-2">Flashcards</h3>
           <p className="text-muted-foreground">Review and create flashcard decks for effective learning.</p>
-          <Link href="/flashcards" className="mt-4 inline-block">
+          <Link href="/dashboard/flashcards" className="mt-4 inline-block">
             <Button variant="outline">Access flashcards</Button>
           </Link>
         </div>

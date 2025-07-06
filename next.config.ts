@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['example.com', 'www.fivebranches.edu'],
+    domains: ['example.com', 'www.fivebranches.edu', 'avatars.slack-edge.com', 'secure.gravatar.com', 'lh3.googleusercontent.com'],
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.supabase.io https://ai.hackclub.com;"
+            value: "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; img-src 'self' data: https://*.slack-edge.com https://avatars.slack-edge.com https://secure.gravatar.com https://*.googleusercontent.com; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.supabase.io https://ai.hackclub.com;"
           }
         ]
       }
