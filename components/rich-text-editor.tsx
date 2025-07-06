@@ -29,9 +29,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useState, useEffect, useRef } from 'react';
-import { createNote, updateNote, Note } from '@/lib/notes';
+import { updateNote, Note } from '@/lib/notes';
 import { useToast } from "@/components/ui/use-toast";
-import { useRouter } from 'next/navigation';
 
 interface RichTextEditorProps {
   note?: Note;
@@ -45,8 +44,9 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
   const [isUnsaved, setIsUnsaved] = useState(false);
   const [noteTitle, setNoteTitle] = useState(note?.title || 'Untitled Note');
   const [currentNoteId, setCurrentNoteId] = useState<string | undefined>(note?.id);
+  const [originalContent, setOriginalContent] = useState<string>(note?.content || '');
+  const [originalTitle, setOriginalTitle] = useState<string>(note?.title || 'Untitled Note');
   const toast = useToast();
-  const router = useRouter();
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const notifySuccess = React.useCallback((title: string, description: string) => {
@@ -62,7 +62,7 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
         heading: {
           levels: [1, 2, 3],
         },
-      }),
+      }), 
       Placeholder.configure({
         placeholder: 'Start typing to create your notes...',
       }),
@@ -82,37 +82,49 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
       }
 
       updateTimeoutRef.current = setTimeout(() => {
-        if (!isUnsaved) {
-          updateUnsavedStatus(true);
-        }
+        updateUnsavedStatus();
         updateTimeoutRef.current = null;
       }, 300);
     }
   });
   
-  const updateUnsavedStatus = React.useCallback((isUnsavedValue: boolean) => {
-    if (isUnsaved !== isUnsavedValue) {
-      setIsUnsaved(isUnsavedValue);
+  const checkForChanges = React.useCallback(() => {
+    if (!editor || !currentNoteId) return false;
+    
+    const currentContent = editor.getHTML();
+    const currentTitleValue = noteTitle;
+    
+    const contentChanged = currentContent !== originalContent;
+    const titleChanged = currentTitleValue !== originalTitle;
+    
+    return contentChanged || titleChanged;
+  }, [editor, currentNoteId, noteTitle, originalContent, originalTitle]);
+
+  const updateUnsavedStatus = React.useCallback((forceValue?: boolean) => {
+    const hasChanges = forceValue !== undefined ? forceValue : checkForChanges();
+    
+    if (isUnsaved !== hasChanges) {
+      setIsUnsaved(hasChanges);
       if (onNoteChanged) {
-        onNoteChanged(isUnsavedValue);
+        onNoteChanged(hasChanges);
       }
     }
-  }, [onNoteChanged]);
+  }, [onNoteChanged, isUnsaved, checkForChanges]);
 
   useEffect(() => {
     if (!editor || !note) return;
     
-    // Only update if the note ID changed or we're getting a new editor instance
     if (currentNoteId !== note.id) {
       setCurrentNoteId(note.id);
       setNoteTitle(note.title);
+      setOriginalTitle(note.title);
+      setOriginalContent(note.content);
       
       if (editor.getHTML() !== note.content) {
         editor.commands.setContent(note.content || '');
       }
       
-      const noteIsUnsaved = note.isUnsaved || false;
-      updateUnsavedStatus(noteIsUnsaved);
+      updateUnsavedStatus(false);
     }
   }, [note?.id, editor]);
   
@@ -120,20 +132,18 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
     if (!editor) return;
     
     if (!note) {
+      const defaultContent = '<h1>Hello, world!</h1><p>Start typing to create your notes.</p>';
       setCurrentNoteId(undefined);
       setNoteTitle('Untitled Note');
-      editor.commands.setContent('<h1>Hello, world!</h1><p>Start typing to create your notes.</p>');
+      setOriginalTitle('Untitled Note');
+      setOriginalContent(defaultContent);
+      editor.commands.setContent(defaultContent);
       updateUnsavedStatus(false);
     }
   }, [note, editor, updateUnsavedStatus]);
 
-  // Auto-save functionality
-  const [autoSaveInterval, setAutoSaveInterval] = useState<NodeJS.Timeout | null>(null);
-
   useEffect(() => {
-    // Start auto-save interval when component mounts
     const interval = setInterval(async () => {
-      // Only save if there are unsaved changes and we have a note ID
       if (isUnsaved && editor && currentNoteId) {
         setIsAutoSaving(true);
         try {
@@ -144,6 +154,8 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
             content
           });
           
+          setOriginalContent(content);
+          setOriginalTitle(noteTitle);
           updateUnsavedStatus(false);
           
           if (onNoteSaved && savedNote) {
@@ -155,11 +167,8 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
           setIsAutoSaving(false);
         }
       }
-    }, 5000); // Save every 5 seconds
+    }, 20000);
     
-    setAutoSaveInterval(interval);
-    
-    // Clean up interval on component unmount
     return () => {
       clearInterval(interval);
     };
@@ -239,6 +248,8 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
       });
       notifySuccess("Note updated", `"${noteTitle}" has been updated successfully.`);
       
+      setOriginalContent(content);
+      setOriginalTitle(noteTitle);
       updateUnsavedStatus(false);
       
       if (onNoteSaved && savedNote) {
@@ -269,7 +280,7 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
             value={noteTitle}
             onChange={(e) => {
               setNoteTitle(e.target.value);
-              updateUnsavedStatus(true);
+              updateUnsavedStatus();
             }}
             placeholder="Enter note title..."
             className="flex-1 min-w-[200px] text-xl font-bold bg-transparent border-none focus:outline-none focus:ring-0 p-0"
@@ -279,6 +290,11 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
           )}
         </div>
         <div className="flex gap-2 items-center">
+          {isUnsaved && !isAutoSaving && (
+            <span className="text-xs text-muted-foreground flex items-center">
+              Unsaved changes (auto-saves every 20s)
+            </span>
+          )}
           {isAutoSaving && (
             <span className="text-xs text-muted-foreground flex items-center">
               <Loader2 className="mr-1 h-3 w-3 animate-spin" />
