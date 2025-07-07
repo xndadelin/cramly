@@ -36,7 +36,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Header />
-          <main className="pt-12 h-[calc(100vh-3rem)] overflow-hidden">
+          <main className="pt-12 h-[calc(100vh-3rem)] overflow-y-auto">
             {children}
           </main>
         </ThemeProvider>

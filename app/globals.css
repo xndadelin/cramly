@@ -122,6 +122,20 @@
   }
 }
 
+body {
+  overflow-y: auto;
+  height: 100vh;
+}
+  
+.scroll-container {
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.content-height {
+  height: 100%;
+}
+
 .markdown-body {
   @apply text-foreground;
 }

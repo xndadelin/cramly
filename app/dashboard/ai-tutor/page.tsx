@@ -280,7 +280,7 @@ export default function AITutorPage() {
   }
   
   return (
-    <div className="h-full flex flex-col md:flex-row overflow-hidden bg-transparent">
+    <div className="h-full flex flex-col md:flex-row bg-transparent">
       <div className={cn(
         "fixed md:relative z-40 md:z-auto md:w-64 border-r border-muted/10 bg-transparent backdrop-blur-md flex flex-col transition-all duration-300 overflow-hidden",
         isSidebarOpen 
@@ -350,7 +350,7 @@ export default function AITutorPage() {
             {isSidebarOpen ? <span>×</span> : <span>≡</span>}
           </Button>
           <h3 className="font-medium">AI Tutor</h3>
-          <div className="w-8"></div> {/* Empty div for balanced spacing */}
+          <div className="w-8"></div>
         </div>
         
         <div className="flex-1 overflow-y-auto px-4 py-6">
