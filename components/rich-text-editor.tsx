@@ -300,7 +300,7 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
             disabled={isSaving}
             variant="outline"
             size="sm"
-            className="border-primary/30 text-primary hover:text-primary/80 hover:bg-primary/5 transition-all"
+            className="border-black/30 dark:border-white/30 hover:opacity-80 hover:bg-black/5 dark:hover:bg-white/5 transition-all"
           >
             {isSaving ? (
               <>
@@ -336,7 +336,7 @@ export function RichTextEditor({ note, onNoteSaved, onNoteChanged }: RichTextEdi
           variant="ghost" 
           size="icon" 
           onClick={setHeading1}
-          className={editor.isActive('heading', { level: 1 }) ? 'text-primary' : 'bg-transparent hover:bg-transparent/5'}
+          className={editor.isActive('heading', { level: 1 }) ? 'font-bold opacity-100' : 'bg-transparent hover:bg-black/5 dark:hover:bg-white/5 opacity-70 hover:opacity-100'}
         >
           <Heading1 className="h-4 w-4" />
         </Button>

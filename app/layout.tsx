@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased gradient-bg`}
       >
         <ThemeProvider
           attribute="class"
@@ -36,7 +36,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Header />
-          <main className="pt-12">
+          <main className="pt-12 h-[calc(100vh-3rem)] overflow-hidden">
             {children}
           </main>
         </ThemeProvider>

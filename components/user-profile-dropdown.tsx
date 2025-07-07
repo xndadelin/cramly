@@ -70,7 +70,7 @@ export function UserProfileDropdown() {
                     aria-haspopup="true"
                 >
                     {avatarUrl ? (
-                        <div className="h-7 w-7 relative rounded-md overflow-hidden border border-border/50">
+                        <div className="h-7 w-7 relative overflow-hidden border border-muted/20">
                             <Image
                                 src={avatarUrl}
                                 alt={userDisplayName}
@@ -81,14 +81,14 @@ export function UserProfileDropdown() {
                             />
                         </div>
                     ) : (
-                        <div className="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center text-xs font-medium text-primary">
+                        <div className="h-7 w-7 bg-transparent backdrop-blur-md flex items-center justify-center text-xs font-medium text-primary border border-muted/20">
                             {initials}
                         </div>
                     )}
                 </button>
 
-                <div className="absolute right-0 top-full mt-1 w-48 bg-popover border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50">
-                    <div className="p-2 border-b">
+                <div className="absolute right-0 top-full mt-1 w-48 bg-transparent backdrop-blur-md border border-muted/10 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50">
+                    <div className="p-2 border-b border-muted/10">
                         <p className="text-sm font-medium truncate">{userDisplayName}</p>
                         <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </div>
@@ -96,7 +96,7 @@ export function UserProfileDropdown() {
                         <Button
                             variant="ghost"
                             size="sm"
-                            className="w-full justify-start text-xs h-8"
+                            className="w-full justify-start text-xs h-8 hover:bg-background/5"
                             onClick={handleSignOut}
                             disabled={isSigningOut}
                         >
