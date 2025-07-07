@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./tiptap-styles.css";
-@import "./gradient-bg.css";
 
 @custom-variant dark (&:is(.dark *));
 
